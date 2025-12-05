@@ -1,172 +1,414 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Compass | Future Architect</title>
+    <title>Career Compass | National Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
+
+    <!-- DARK MODE TOGGLE -->
+    <button onclick="toggleTheme()" class="fixed top-4 right-4 p-3 rounded-full glass shadow-lg text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform z-50">
+        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+    </button>
 
     <!-- MODAL OVERLAY -->
-    <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-opacity">
-        <div id="modal-content" class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden hidden">
+    <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-opacity">
+        <div id="modal-content" class="glass w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden hidden transform transition-all scale-95 opacity-0">
             <!-- Dynamic Content -->
         </div>
     </div>
 
-    <!-- MAIN CARD -->
-    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[700px] flex flex-col relative">
-        <div class="bg-slate-900 text-white p-6 flex justify-between items-center z-10">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg"><i data-lucide="compass" class="text-white w-6 h-6"></i></div>
-                <div><h1 class="text-xl font-bold tracking-tight">Career Compass</h1><p class="text-slate-400 text-xs uppercase tracking-wider">Production Build</p></div>
-            </div>
-            <div class="flex items-center gap-2"><div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div><span class="text-xs text-slate-400 font-mono">System Online</span></div>
-        </div>
-        <div class="w-full bg-slate-100 h-1"><div id="progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-500 ease-in-out"></div></div>
-
-        <div class="flex-1 p-6 md:p-10 relative overflow-y-auto custom-scroll" id="main-content">
-            <!-- STEP 0 -->
-            <div id="step-0" class="step-section flex flex-col items-center text-center justify-center h-full space-y-8 fade-in">
-                <div class="w-32 h-32 bg-blue-50 rounded-full flex items-center justify-center ring-4 ring-blue-100"><i data-lucide="graduation-cap" class="text-blue-600 w-16 h-16"></i></div>
-                <div><h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Precision Admission<br>Engine</h2><p class="mt-4 text-lg text-slate-600 max-w-lg mx-auto leading-relaxed">Featuring <span class="font-bold text-blue-600">Strict Subject Validation</span> and <span class="font-bold text-blue-600">Catchment Area Logic</span>.</p></div>
-                <button onclick="nextStep(1)" class="group relative inline-flex items-center justify-center px-8 py-3 text-lg font-bold text-white transition-all duration-200 bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg hover:-translate-y-1">Start Analysis <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i></button>
-            </div>
-
-            <!-- STEP 1 -->
-            <div id="step-1" class="step-section hidden fade-in">
-                <h3 class="text-2xl font-bold mb-2">Profile & Academics</h3>
-                <p class="text-slate-500 mb-6">Your origin and grades determine your catchment advantages.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100"><label class="block text-sm font-bold text-blue-900 mb-2">JAMB / UTME Score</label><input type="number" id="jamb-input" placeholder="e.g. 250" class="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono font-bold text-blue-800" onchange="updateData('jamb', this.value)"></div>
-                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200"><label class="block text-sm font-bold text-slate-700 mb-2">State of Origin</label><select id="state-input" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" onchange="updateData('state', this.value)"><option value="">Select State...</option><option value="Lagos">Lagos</option><option value="Ogun">Ogun</option><option value="Oyo">Oyo</option><option value="Osun">Osun</option><option value="Ekiti">Ekiti</option><option value="Ondo">Ondo</option><option value="Edo">Edo</option><option value="Delta">Delta</option><option value="Abuja">Abuja</option><option value="Other">Other</option></select></div>
+    <!-- MAIN APP CONTAINER -->
+    <div class="max-w-4xl w-full glass rounded-3xl shadow-2xl overflow-hidden min-h-[750px] flex flex-col relative transition-colors duration-500">
+        
+        <!-- HEADER -->
+        <div class="bg-white/80 dark:bg-slate-900/80 p-6 flex justify-between items-center z-10 border-b border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg shadow-blue-500/30">
+                    <i data-lucide="compass" class="text-white w-6 h-6"></i>
                 </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white">Career Compass</h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">National Edition</p>
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full border border-green-200 dark:border-green-800">
+                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-xs text-green-700 dark:text-green-400 font-bold">Online</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1">
+            <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full w-0 transition-all duration-700 ease-in-out"></div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="flex-1 p-6 md:p-10 relative overflow-y-auto custom-scroll" id="main-content">
+            
+            <!-- STEP 0: HERO -->
+            <div id="step-0" class="step-section flex flex-col items-center text-center justify-center h-full space-y-8 animate-fade-in">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full"></div>
+                    <div class="w-32 h-32 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center relative rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <i data-lucide="map" class="text-blue-600 dark:text-blue-400 w-16 h-16"></i>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 tracking-tight">
+                        Design Your Future.
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        The smartest admission engine for Nigerian students. We analyze your <span class="font-bold text-blue-600 dark:text-blue-400">WAEC</span>, <span class="font-bold text-blue-600 dark:text-blue-400">JAMB</span>, and State of Origin to find your perfect university or polytechnic match.
+                    </p>
+                </div>
+
+                <button onclick="nextStep(1)" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-slate-900 dark:bg-blue-600 rounded-xl hover:bg-slate-800 dark:hover:bg-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                    Begin Analysis
+                    <i data-lucide="arrow-right" class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+            <!-- STEP 1: DATA ENTRY -->
+            <div id="step-1" class="step-section hidden animate-slide-up">
+                <h3 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Profile & Academics</h3>
+                <p class="text-slate-500 dark:text-slate-400 mb-8">We use this data to calculate your catchment advantages.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">JAMB Score (0-400)</label>
+                        <input type="number" id="jamb-input" placeholder="e.g. 265" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono font-bold text-lg text-blue-600 dark:text-blue-400 transition-all" onchange="updateData('jamb', this.value)">
+                    </div>
+                    
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">State of Origin</label>
+                        <select id="state-input" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 dark:text-slate-200 transition-all cursor-pointer" onchange="updateData('state', this.value)">
+                            <option value="">Select State...</option>
+                            <option value="Lagos">Lagos</option><option value="Ogun">Ogun</option><option value="Oyo">Oyo</option><option value="Osun">Osun</option>
+                            <option value="Ekiti">Ekiti</option><option value="Ondo">Ondo</option><option value="Edo">Edo</option><option value="Delta">Delta</option>
+                            <option value="Rivers">Rivers</option><option value="Kano">Kano</option><option value="Kaduna">Kaduna</option><option value="Enugu">Enugu</option>
+                            <option value="Abuja">Abuja</option><option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="subjects-grid"></div>
             </div>
 
-            <!-- STEP 2 -->
-            <div id="step-2" class="step-section hidden fade-in">
-                <h3 class="text-2xl font-bold mb-2">Select Core Interests</h3>
-                <p class="text-slate-500 mb-8">Choose at least 3 domains.</p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="interests-grid"></div>
+            <!-- STEP 2: INTERESTS -->
+            <div id="step-2" class="step-section hidden animate-slide-up">
+                <h3 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white">What drives you?</h3>
+                <p class="text-slate-500 dark:text-slate-400 mb-8">Select at least 3 areas that genuinely interest you.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="interests-grid"></div>
             </div>
 
-            <!-- STEP 3 (RESULTS) -->
-            <div id="step-results" class="step-section hidden fade-in pb-20">
-                <div class="text-center mb-8"><h3 class="text-2xl font-bold text-slate-900">Analysis Complete</h3><p class="text-slate-500">Based on your unique profile.</p></div>
+            <!-- STEP 3: RESULTS -->
+            <div id="step-results" class="step-section hidden animate-fade-in pb-24">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center p-3 bg-green-100 dark:bg-green-900/50 rounded-full mb-4">
+                        <i data-lucide="check-circle-2" class="w-8 h-8 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white">Analysis Complete</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mt-2">We found the best paths for your future.</p>
+                </div>
+                
                 <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                <div class="mt-12 text-center hidden" id="restart-btn-container"><button onclick="resetApp()" class="text-slate-500 hover:text-blue-600 text-sm font-medium flex items-center justify-center gap-2 mx-auto"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Run New Analysis</button></div>
+
+                <div class="mt-12 text-center hidden animate-fade-in" id="restart-btn-container">
+                    <button onclick="resetApp()" class="inline-flex items-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 font-medium transition-colors">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i> Start New Analysis
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div id="nav-footer" class="p-6 border-t border-slate-100 bg-slate-50 flex justify-between items-center hidden z-10">
-            <button onclick="prevStep()" class="text-slate-500 font-medium hover:text-slate-800 flex items-center gap-2 px-4 py-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
-            <button id="next-btn" onclick="nextStep()" class="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 flex items-center gap-2 shadow-lg">Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+        <!-- FOOTER NAV -->
+        <div id="nav-footer" class="p-6 border-t border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex justify-between items-center hidden z-10 transition-colors">
+            <button onclick="prevStep()" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white font-medium flex items-center gap-2 px-4 py-2 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+            </button>
+            <button id="next-btn" onclick="nextStep()" class="bg-slate-900 dark:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg transition-all">
+                Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
         </div>
     </div>
 
     <script>
-        // Use relative URL so it works automatically in Docker
+        // CONFIG
         const API_URL = '/recommend'; 
-
-        const SUBJECTS = [{id:'math',label:'Mathematics'},{id:'eng',label:'English'},{id:'phys',label:'Physics'},{id:'chem',label:'Chemistry'},{id:'bio',label:'Biology'},{id:'lit',label:'Literature'},{id:'govt',label:'Government'},{id:'econ',label:'Economics'},{id:'comp',label:'Computer Studies'}];
-        const INTERESTS = [{id:'code',label:'Coding',icon:'code'},{id:'build',label:'Building',icon:'hammer'},{id:'care',label:'Helping',icon:'heart'},{id:'law',label:'Debating',icon:'scale'},{id:'money',label:'Finance',icon:'banknote'},{id:'sci',label:'Research',icon:'flask-conical'},{id:'art',label:'Design',icon:'palette'},{id:'write',label:'Writing',icon:'book-open'}];
+        const SUBJECTS = [
+            {id:'math',label:'Mathematics'},{id:'eng',label:'English'},{id:'phys',label:'Physics'},{id:'chem',label:'Chemistry'},
+            {id:'bio',label:'Biology'},{id:'lit',label:'Literature'},{id:'govt',label:'Government'},{id:'econ',label:'Economics'},{id:'comp',label:'Computer Studies'}
+        ];
+        const INTERESTS = [
+            {id:'code',label:'Coding',icon:'code'},{id:'build',label:'Building',icon:'hammer'},{id:'care',label:'Healthcare',icon:'heart-pulse'},
+            {id:'law',label:'Debating',icon:'scale'},{id:'money',label:'Finance',icon:'banknote'},{id:'sci',label:'Research',icon:'microscope'},
+            {id:'art',label:'Design',icon:'palette'},{id:'write',label:'Writing',icon:'book-open'}
+        ];
 
         let currentStep = 0;
         let userData = { jamb: 0, state: '', grades: {}, interests: [] };
 
-        document.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); renderSubjects(); renderInterests(); });
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => { 
+            lucide.createIcons(); 
+            renderSubjects(); 
+            renderInterests(); 
+            // Check system dark mode pref
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+        });
 
+        // THEMING
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // RENDERERS
         function renderSubjects() {
             document.getElementById('subjects-grid').innerHTML = SUBJECTS.map(sub => `
-                <div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg bg-slate-50/50 hover:border-blue-300 transition-colors">
-                    <label class="font-medium text-slate-700 text-sm">${sub.label}</label>
-                    <select onchange="userData.grades['${sub.id}'] = parseInt(this.value)" class="ml-4 p-2 border border-slate-300 rounded-md bg-white text-sm outline-none w-32">
-                        <option value="0">Grade...</option><option value="5">A1 (Exc)</option><option value="4">B2/B3 (VG)</option><option value="3">C4-C6 (Cred)</option><option value="2">D7 (Pass)</option><option value="1">E8 (Weak)</option><option value="0">F9 (Fail)</option>
+                <div class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/50 dark:bg-slate-800/50 hover:border-blue-400 dark:hover:border-blue-500 transition-colors group">
+                    <label class="font-semibold text-slate-700 dark:text-slate-200 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${sub.label}</label>
+                    <select onchange="userData.grades['${sub.id}'] = parseInt(this.value)" class="ml-4 p-2 pl-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-36 cursor-pointer">
+                        <option value="0">Grade...</option><option value="5">A1 (Exc)</option><option value="4">B2/B3 (VG)</option>
+                        <option value="3">C4-C6 (Cred)</option><option value="2">D7 (Pass)</option><option value="1">E8 (Weak)</option><option value="0">F9 (Fail)</option>
                     </select>
                 </div>`).join('');
         }
 
         function renderInterests() {
             document.getElementById('interests-grid').innerHTML = INTERESTS.map(int => `
-                <button id="btn-int-${int.id}" onclick="toggleInterest('${int.id}')" class="flex flex-col items-center justify-center p-6 rounded-xl border-2 border-slate-100 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50 transition-all gap-3 relative">
-                    <i data-lucide="${int.icon}" class="w-6 h-6 mb-1"></i><span class="text-xs font-bold uppercase tracking-wide">${int.label}</span>
-                    <div id="check-${int.id}" class="hidden absolute top-2 right-2 text-blue-500"><i data-lucide="check-circle" class="w-4 h-4"></i></div>
+                <button id="btn-int-${int.id}" onclick="toggleInterest('${int.id}')" class="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:border-blue-200 dark:hover:border-slate-600 hover:shadow-md transition-all gap-3 relative group">
+                    <i data-lucide="${int.icon}" class="w-8 h-8 mb-1 group-hover:scale-110 transition-transform duration-300"></i>
+                    <span class="text-xs font-bold uppercase tracking-wide group-hover:text-slate-800 dark:group-hover:text-white transition-colors">${int.label}</span>
+                    <div id="check-${int.id}" class="hidden absolute top-3 right-3 text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-slate-900 rounded-full p-0.5"><i data-lucide="check-circle-2" class="w-5 h-5 fill-current"></i></div>
                 </button>`).join('');
             lucide.createIcons();
         }
 
         function renderSkeleton() {
             document.getElementById('results-container').innerHTML = Array(4).fill(0).map(() => `
-                <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm relative overflow-hidden">
-                    <div class="animate-pulse"><div class="flex justify-between items-center mb-4"><div class="h-6 bg-slate-200 rounded w-20"></div><div class="h-4 bg-slate-200 rounded w-16"></div></div><div class="h-8 bg-slate-200 rounded w-3/4 mb-4"></div><div class="h-4 bg-slate-200 rounded w-full mb-2"></div><div class="h-20 bg-slate-100 rounded-lg"></div></div>
+                <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                    <div class="animate-pulse">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
+                            <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20"></div>
+                        </div>
+                        <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+                        <div class="space-y-2 mb-6">
+                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                        </div>
+                        <div class="h-12 bg-slate-100 dark:bg-slate-700 rounded-xl"></div>
+                    </div>
                 </div>`).join('');
         }
 
-        function openModal(courseTitle, universities) {
-            const backdrop = document.getElementById('modal-backdrop');
-            const content = document.getElementById('modal-content');
-            const uniListHTML = universities.map(u => `
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
-                    <div class="mb-2 sm:mb-0"><p class="font-bold text-slate-800">${u.name}</p><p class="text-xs text-slate-500">${u.duration} Duration</p></div>
-                    <div class="text-right"><p class="text-sm font-bold text-blue-600">${u.tuition}</p><p class="text-[10px] text-slate-400 uppercase">Per Session</p></div>
-                </div>`).join('');
-
-            content.innerHTML = `<div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50"><div><h3 class="text-xl font-bold text-slate-900">${courseTitle}</h3><p class="text-sm text-slate-500">Available Admission Options</p></div><button onclick="closeModal()" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="max-h-[400px] overflow-y-auto">${uniListHTML}</div><div class="p-4 bg-slate-50 border-t border-slate-100 text-center"><button onclick="closeModal()" class="text-sm text-blue-600 font-semibold hover:underline">Close Details</button></div>`;
-            backdrop.classList.remove('hidden'); backdrop.classList.add('flex'); content.classList.remove('hidden'); content.classList.add('modal-enter'); lucide.createIcons();
-        }
-
-        function closeModal() { document.getElementById('modal-backdrop').classList.add('hidden'); document.getElementById('modal-backdrop').classList.remove('flex'); }
-
-        function updateData(key, val) { if(key === 'jamb') userData.jamb = parseInt(val)||0; if(key === 'state') userData.state = val; }
-        
+        // --- INTERACTIVITY ---
         function toggleInterest(id) {
             const btn = document.getElementById(`btn-int-${id}`); const check = document.getElementById(`check-${id}`);
-            if (userData.interests.includes(id)) { userData.interests = userData.interests.filter(i => i !== id); btn.classList.remove('border-blue-500','bg-blue-50','text-blue-700'); check.classList.add('hidden'); } 
-            else { userData.interests.push(id); btn.classList.add('border-blue-500','bg-blue-50','text-blue-700'); check.classList.remove('hidden'); }
+            if (userData.interests.includes(id)) { 
+                userData.interests = userData.interests.filter(i => i !== id); 
+                btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-slate-700', 'text-blue-700', 'dark:text-blue-300');
+                btn.classList.add('border-slate-100', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+                check.classList.add('hidden'); 
+            } else { 
+                userData.interests.push(id); 
+                btn.classList.remove('border-slate-100', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+                btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-slate-700', 'text-blue-700', 'dark:text-blue-300'); 
+                check.classList.remove('hidden'); 
+            }
             validateStep(); lucide.createIcons();
         }
 
         function validateStep() {
             const nextBtn = document.getElementById('next-btn');
-            if (currentStep === 2) { nextBtn.disabled = userData.interests.length < 3; nextBtn.innerHTML = userData.interests.length < 3 ? `Select ${3 - userData.interests.length} more` : `Analyze Profile <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>`; }
+            if (currentStep === 2) { 
+                nextBtn.disabled = userData.interests.length < 3; 
+                nextBtn.innerHTML = userData.interests.length < 3 ? `Select ${3 - userData.interests.length} more` : `Run Analysis <i data-lucide="sparkles" class="w-4 h-4 ml-2"></i>`; 
+            }
         }
 
+        function updateData(key, val) { if(key === 'jamb') userData.jamb = parseInt(val)||0; if(key === 'state') userData.state = val; }
+
         async function nextStep(target) {
-            if (target) currentStep = target; else { if (currentStep === 1 && userData.jamb < 1) return alert("Enter JAMB score"); currentStep++; }
+            if (target) currentStep = target; else { if (currentStep === 1 && userData.jamb < 1) return alert("Please enter your JAMB score to continue."); currentStep++; }
             document.querySelectorAll('.step-section').forEach(el => el.classList.add('hidden'));
             
             if (currentStep === 3) {
-                document.getElementById('nav-footer').classList.add('hidden'); document.getElementById('step-results').classList.remove('hidden'); renderSkeleton();
+                document.getElementById('nav-footer').classList.add('hidden'); 
+                document.getElementById('step-results').classList.remove('hidden'); 
+                renderSkeleton();
                 try {
                     const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userData) });
                     const results = await response.json(); renderResults(results); document.getElementById('restart-btn-container').classList.remove('hidden');
-                } catch (e) { document.getElementById('results-container').innerHTML = `<div class="p-8 text-center text-red-500">Connection Failed</div>`; }
-            } else { document.getElementById(`step-${currentStep}`).classList.remove('hidden'); document.getElementById('nav-footer').classList.remove('hidden'); document.getElementById('nav-footer').classList.add('flex'); }
+                } catch (e) { 
+                    document.getElementById('results-container').innerHTML = `<div class="col-span-2 text-center text-red-500 p-8 glass rounded-xl">Connection Failed. Make sure Docker is running.</div>`; 
+                }
+            } else { 
+                document.getElementById(`step-${currentStep}`).classList.remove('hidden'); 
+                document.getElementById('nav-footer').classList.remove('hidden'); 
+                document.getElementById('nav-footer').classList.add('flex'); 
+            }
             document.getElementById('progress-bar').style.width = `${(currentStep/3)*100}%`; validateStep(); lucide.createIcons();
         }
         function prevStep() { if (currentStep > 0) currentStep--; nextStep(currentStep); }
 
+        // RESULTS & MODALS
         function renderResults(results) {
             const container = document.getElementById('results-container');
-            if (results.length === 0) { container.innerHTML = `<div class="col-span-2 text-center text-slate-400 p-12 border-2 border-dashed border-slate-200 rounded-xl">No matches found.<br><span class="text-xs">Try ensuring you meet strict subject requirements (e.g., Biology for Med).</span></div>`; return; }
+            if (results.length === 0) { 
+                container.innerHTML = `<div class="col-span-2 text-center text-slate-500 dark:text-slate-400 p-12 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
+                    <i data-lucide="frown" class="w-12 h-12 mx-auto mb-4 text-slate-300 dark:text-slate-600"></i>
+                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">No Matches Found</h3>
+                    <p class="text-sm mt-2">Try adjusting your JAMB score or ensuring you meet compulsory subjects (e.g., Biology for Med).</p>
+                </div>`; 
+                lucide.createIcons(); return; 
+            }
+
             container.innerHTML = results.map(r => {
-                const uniDataString = JSON.stringify(r.universities).replace(/"/g, '&quot;');
-                return `<div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><div class="flex justify-between items-start mb-3"><span class="px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider rounded-full border border-blue-100">${r.category}</span><span class="text-green-600 font-bold text-sm flex items-center gap-1"><i data-lucide="trending-up" class="w-4 h-4"></i> ${r.score}% Match</span></div><h4 class="text-xl font-bold text-slate-800 mb-2">${r.title}</h4><p class="text-slate-600 text-sm leading-relaxed mb-6">${r.desc}</p><button onclick="openModal('${r.title}', ${uniDataString})" class="w-full py-3 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">View ${r.universities.length} Universities <i data-lucide="eye" class="w-4 h-4"></i></button></div>`;
-            }).join(''); lucide.createIcons();
+                const uniData = JSON.stringify(r.universities).replace(/"/g, '&quot;');
+                const careerPath = r.career_path ? JSON.stringify(r.career_path).replace(/"/g, '&quot;') : '[]';
+                
+                return `
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 to-indigo-600"></div>
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-blue-100 dark:border-blue-800">
+                            ${r.category}
+                        </span>
+                        <div class="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg border border-green-100 dark:border-green-800">
+                            <i data-lucide="trending-up" class="w-4 h-4 text-green-600 dark:text-green-400"></i> 
+                            <span class="text-green-700 dark:text-green-400 font-bold text-sm">${r.score}% Match</span>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-2xl font-bold text-slate-800 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${r.title}</h4>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2">${r.description}</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="openModal('${r.title}', ${uniData}, ${careerPath})" class="col-span-2 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold hover:bg-blue-600 dark:hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10">
+                            View Institutions <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        function openModal(title, universities, careers) {
+            const backdrop = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+            
+            // Career Timeline HTML
+            const careerHTML = careers.length ? `
+                <div class="mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Career Trajectory</p>
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scroll">
+                        ${careers.map((c, i) => `
+                            <div class="flex items-center shrink-0">
+                                <div class="px-3 py-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm whitespace-nowrap">${c}</div>
+                                ${i < careers.length - 1 ? `<div class="h-0.5 w-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>` : '';
+
+            // Universities HTML
+            const uniHTML = universities.map(u => `
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 mb-3 last:mb-0 hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
+                    <div class="mb-2 sm:mb-0">
+                        <p class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            ${u.name}
+                        </p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                            <i data-lucide="clock" class="w-3 h-3"></i> ${u.duration} 
+                            <span class="mx-1">•</span>
+                            <span class="text-blue-600 dark:text-blue-400 font-medium">Cut-off: ${u.cutoff}</span>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">${u.tuition}</p>
+                        <p class="text-[10px] text-slate-400 uppercase">Per Session</p>
+                    </div>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">${title}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Available Options</p>
+                    </div>
+                    <button onclick="closeModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 dark:text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="p-6 max-h-[60vh] overflow-y-auto custom-scroll bg-white dark:bg-slate-900">
+                    ${careerHTML}
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Recommended Institutions</p>
+                    ${uniHTML}
+                </div>
+            `;
+            
+            // Show
+            backdrop.classList.remove('hidden'); backdrop.classList.add('flex');
+            content.classList.remove('hidden', 'scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const backdrop = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                backdrop.classList.remove('flex');
+            }, 200);
         }
         function resetApp() { location.reload(); }
     </script>

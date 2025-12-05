@@ -1,0 +1,19 @@
+Python artifacts (Junk)
+
+pycache/
+*.py[cod]
+*$py.class
+
+Virtual Environments
+
+venv/
+env/
+
+Docker artifacts
+
+.dockerignore
+
+OS specific (Junk)
+
+.DS_Store
+Thumbs.db
