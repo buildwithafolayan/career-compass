@@ -1,416 +1,1199 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Compass | National Edition</title>
+    <title>Career Compass | Find Your Perfect Course</title>
+    <meta name="description"
+        content="Discover your ideal university course based on your grades, interests, and aspirations.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' }
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.6s ease-out forwards',
-                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' }, '50%': { transform: 'translateY(-15px) rotate(3deg)' } },
+                        glow: { '0%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' }, '100%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.6)' } }
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Glassmorphism Utilities */
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Subtle grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 100;
+        }
+
         .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
+
         .dark .glass {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.88);
         }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Unique card hover with slight rotation */
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-6px) rotate(-0.5deg);
+            box-shadow: 0 24px 48px -12px rgba(59, 130, 246, 0.25);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            border-radius: 10px;
+        }
+
+        .dark .custom-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+        }
+
+        .interest-btn {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interest-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .interest-btn.selected {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: white;
+            border-color: transparent;
+            transform: scale(1.03) rotate(-1deg);
+            box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.5);
+        }
+
+        .category-pill {
+            transition: all 0.25s ease;
+        }
+
+        .category-pill.active {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: white;
+            box-shadow: 0 4px 16px -2px rgba(59, 130, 246, 0.5);
+        }
+
+        .progress-step {
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .progress-step.active {
+            transform: scale(1.15);
+        }
+
+        .progress-step.completed {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        /* Custom Premium Select/Dropdown Styling */
+        .custom-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .custom-select:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .custom-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .dark .custom-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        }
+
+        /* Organic blob shapes */
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: morph 12s ease-in-out infinite;
+        }
+
+        @keyframes morph {
+
+            0%,
+            100% {
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+                transform: rotate(0deg) scale(1);
+            }
+
+            33% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+                transform: rotate(45deg) scale(1.05);
+            }
+
+            66% {
+                border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%;
+                transform: rotate(-30deg) scale(0.95);
+            }
+        }
+
+        /* Staggered card animations */
+        @keyframes cardPop {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .result-card {
+            animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+
+        /* Bookmark heart animation */
+        .bookmark-btn {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bookmark-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .bookmark-btn.active {
+            color: #ec4899;
+            transform: scale(1.1);
+        }
+
+        /* Premium button glow */
+        .glow-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow-btn::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
+            background-size: 300% 300%;
+            z-index: -1;
+            filter: blur(12px);
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: glow-move 3s linear infinite;
+        }
+
+        .glow-btn:hover::after {
+            opacity: 0.6;
+        }
+
+        @keyframes glow-move {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 300% 50%;
+            }
+        }
+
+        /* Match score ring */
+        .score-ring {
+            background: conic-gradient(#10b981 var(--score), #e5e7eb var(--score));
+        }
+
+        .dark .score-ring {
+            background: conic-gradient(#34d399 var(--score), #374151 var(--score));
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
 
-    <!-- DARK MODE TOGGLE -->
-    <button onclick="toggleTheme()" class="fixed top-4 right-4 p-3 rounded-full glass shadow-lg text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform z-50">
-        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen transition-colors duration-300">
+
+    <!-- AMBIENT BLOBS -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+            class="blob w-[500px] h-[500px] bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-900 dark:to-indigo-900 -top-20 -left-32 opacity-30">
+        </div>
+        <div class="blob w-[400px] h-[400px] bg-gradient-to-br from-cyan-400 to-blue-500 dark:from-cyan-900 dark:to-blue-900 -bottom-20 -right-20 opacity-25"
+            style="animation-delay: -3s;"></div>
+        <div class="blob w-[300px] h-[300px] bg-gradient-to-br from-sky-400 to-cyan-500 dark:from-sky-900 dark:to-cyan-900 top-1/3 right-1/4 opacity-20"
+            style="animation-delay: -6s;"></div>
+        <div class="blob w-[200px] h-[200px] bg-gradient-to-br from-teal-400 to-blue-500 dark:from-teal-900 dark:to-blue-900 bottom-1/4 left-1/3 opacity-15"
+            style="animation-delay: -9s;"></div>
+    </div>
+
+    <!-- THEME TOGGLE -->
+    <button onclick="toggleTheme()"
+        class="fixed top-5 right-5 z-50 p-3 rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
     </button>
 
-    <!-- MODAL OVERLAY -->
-    <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-opacity">
-        <div id="modal-content" class="glass w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden hidden transform transition-all scale-95 opacity-0">
-            <!-- Dynamic Content -->
+    <!-- MODAL -->
+    <div id="modal-backdrop"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div id="modal-content"
+            class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0">
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER -->
-    <div class="max-w-4xl w-full glass rounded-3xl shadow-2xl overflow-hidden min-h-[750px] flex flex-col relative transition-colors duration-500">
-        
-        <!-- HEADER -->
-        <div class="bg-white/80 dark:bg-slate-900/80 p-6 flex justify-between items-center z-10 border-b border-slate-200 dark:border-slate-700">
-            <div class="flex items-center gap-4">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg shadow-blue-500/30">
-                    <i data-lucide="compass" class="text-white w-6 h-6"></i>
+    <!-- MAIN CONTAINER -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 py-8">
+        <div class="w-full max-w-3xl">
+
+            <!-- PROGRESS INDICATOR -->
+            <div id="progress-container" class="hidden mb-8">
+                <div class="flex items-center justify-center gap-3">
+                    <div id="prog-1"
+                        class="progress-step w-10 h-10 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center text-sm font-bold text-slate-400 shadow-md">
+                        1</div>
+                    <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full">
+                        <div id="prog-line-1"
+                            class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500"
+                            style="width: 0%"></div>
+                    </div>
+                    <div id="prog-2"
+                        class="progress-step w-10 h-10 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center text-sm font-bold text-slate-400 shadow-md">
+                        2</div>
+                    <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full">
+                        <div id="prog-line-2"
+                            class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500"
+                            style="width: 0%"></div>
+                    </div>
+                    <div id="prog-3"
+                        class="progress-step w-10 h-10 rounded-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center text-sm font-bold text-slate-400 shadow-md">
+                        3</div>
+                </div>
+            </div>
+
+            <!-- CARD CONTAINER -->
+            <div class="glass rounded-3xl shadow-2xl overflow-hidden border border-white/50 dark:border-slate-700/50">
+
+                <!-- STEP 0: WELCOME -->
+                <div id="step-0" class="step-section p-8 md:p-12 text-center animate-fade-in">
+                    <div class="mb-8">
+                        <div
+                            class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30 mb-6 animate-float">
+                            <i data-lucide="compass" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
+                            Career <span class="gradient-text">Compass</span>
+                        </h1>
+                        <p class="text-lg text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                            Discover your perfect university course in just 3 simple steps
+                        </p>
+                    </div>
+
+                    <!-- ANIMATED STATS -->
+                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto mb-8" id="stats-section">
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                            <div class="text-3xl font-black text-blue-600 dark:text-blue-400" data-count="45">0</div>
+                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                Courses</div>
+                        </div>
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                            <div class="text-3xl font-black text-cyan-600 dark:text-cyan-400" data-count="50">0</div>
+                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                Universities</div>
+                        </div>
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                            <div class="text-3xl font-black text-teal-600 dark:text-teal-400" data-count="9">0</div>
+                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                Categories</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                        <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-full">
+                            <i data-lucide="zap" class="w-4 h-4 text-blue-500"></i>
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Smart Matching</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-4 py-2 bg-cyan-50 dark:bg-cyan-900/30 rounded-full">
+                            <i data-lucide="target" class="w-4 h-4 text-cyan-500"></i>
+                            <span class="text-sm font-medium text-cyan-700 dark:text-cyan-300">Personalized
+                                Results</span>
+                        </div>
+                    </div>
+
+                    <button onclick="startJourney()"
+                        class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/25 hover:shadow-2xl transition-all hover:-translate-y-1 mb-10">
+                        Get Started
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <!-- TESTIMONIALS -->
+                    <div class="border-t border-slate-200 dark:border-slate-700 pt-8">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">What Students Say
+                        </p>
+                        <div id="testimonial-carousel" class="relative overflow-hidden">
+                            <div class="testimonial-slide transition-opacity duration-500">
+                                <p class="text-slate-600 dark:text-slate-400 italic mb-3">"Career Compass helped me
+                                    discover Computer Science was my calling. Now studying at UNILAG!"</p>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">— Adaeze O., Lagos
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 1: ACADEMICS -->
+                <div id="step-1" class="step-section hidden p-8 md:p-10 animate-slide-up">
+                    <div class="mb-8">
+                        <span
+                            class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Step
+                            1 of 3</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">Your Academic
+                            Profile</h2>
+                        <p class="text-slate-500 dark:text-slate-400">Enter your JAMB score and WAEC grades</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- JAMB Score -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Your JAMB
+                                Score</label>
+                            <div class="relative">
+                                <input type="number" id="jamb-input" placeholder="e.g. 280" min="0" max="400"
+                                    class="w-full px-5 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl focus:border-blue-500 dark:focus:border-blue-400 outline-none text-xl font-bold text-slate-900 dark:text-white transition-all"
+                                    onchange="updateData('jamb', this.value)">
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 px-3 py-1 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                                    <span class="text-sm font-bold text-blue-600 dark:text-blue-400">/400</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters Toggle -->
+                        <button onclick="toggleFilters()" type="button"
+                            class="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                            <span id="filter-toggle-text">Show advanced filters</span>
+                            <i data-lucide="chevron-down" id="filter-chevron" class="w-4 h-4 transition-transform"></i>
+                        </button>
+
+                        <!-- Advanced Filters Panel -->
+                        <div id="filters-panel"
+                            class="hidden space-y-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Institution
+                                        Type</label>
+                                    <select id="institution-type" onchange="updateData('institutionType', this.value)"
+                                        class="custom-select w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 outline-none">
+                                        <option value="all">All Types</option>
+                                        <option value="university">Universities Only</option>
+                                        <option value="polytechnic">Polytechnics Only</option>
+                                        <option value="college">Colleges Only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Max
+                                        Tuition (₦)</label>
+                                    <select id="max-tuition" onchange="updateData('maxTuition', parseInt(this.value))"
+                                        class="custom-select w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 outline-none">
+                                        <option value="0">No Limit</option>
+                                        <option value="50000">Under ₦50,000</option>
+                                        <option value="100000">Under ₦100,000</option>
+                                        <option value="500000">Under ₦500,000</option>
+                                        <option value="1000000">Under ₦1,000,000</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Duration</label>
+                                    <select id="duration-pref" onchange="updateData('duration', this.value)"
+                                        class="custom-select w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 outline-none">
+                                        <option value="any">Any Duration</option>
+                                        <option value="short">Short (2-3 Years)</option>
+                                        <option value="medium">Medium (4 Years)</option>
+                                        <option value="long">Long (5-6 Years)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WAEC GRADES -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">WAEC
+                                Grades</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="subjects-grid"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <button onclick="goBack()"
+                            class="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium transition-colors">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                        </button>
+                        <button onclick="nextStep()" id="step1-next"
+                            class="flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                            Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: INTERESTS -->
+                <div id="step-2" class="step-section hidden p-8 md:p-10 animate-slide-up">
+                    <div class="mb-8">
+                        <span
+                            class="inline-block px-3 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Step
+                            2 of 3</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">What Excites You?
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400">Select at least 3 areas that genuinely interest
+                            you</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="interests-grid"></div>
+
+                    <div
+                        class="flex justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <button onclick="goBack()"
+                            class="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium transition-colors">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                        </button>
+                        <button onclick="getResults()" id="step2-next" disabled
+                            class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Find My Courses
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: RESULTS -->
+                <div id="step-3" class="step-section hidden p-8 md:p-10 animate-fade-in">
+                    <div class="text-center mb-8">
+                        <div
+                            class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-500/30 mb-4">
+                            <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">Your Perfect
+                            Matches</h2>
+                        <p class="text-slate-500 dark:text-slate-400">Courses tailored to your profile and interests</p>
+                    </div>
+
+                    <!-- FILTERS -->
+                    <div class="flex flex-wrap justify-center gap-2 mb-6" id="category-filters"></div>
+
+                    <!-- SEARCH -->
+                    <div class="relative max-w-sm mx-auto mb-4">
+                        <i data-lucide="search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                        <input type="text" placeholder="Search courses..." id="course-search"
+                            class="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-blue-500 text-slate-900 dark:text-white"
+                            oninput="searchCourses(this.value)">
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="flex flex-wrap justify-center gap-3 mb-6">
+                        <button onclick="exportPDF()"
+                            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 transition-all">
+                            <i data-lucide="download" class="w-4 h-4"></i> Download PDF
+                        </button>
+                        <button onclick="toggleCompareMode()" id="compare-mode-btn"
+                            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 transition-all">
+                            <i data-lucide="columns" class="w-4 h-4"></i> Compare Courses
+                        </button>
+                        <button onclick="toggleVoiceInput()" id="voice-btn"
+                            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 transition-all">
+                            <i data-lucide="mic" class="w-4 h-4"></i> Voice Search
+                        </button>
+                    </div>
+
+                    <!-- COMPARE SELECTION BAR (Hidden by default) -->
+                    <div id="compare-bar"
+                        class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-500/30 flex items-center gap-4">
+                        <span id="compare-count">0 courses selected</span>
+                        <button onclick="showComparison()"
+                            class="px-4 py-2 bg-white text-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-50 transition-colors">Compare
+                            Now</button>
+                        <button onclick="clearComparison()"
+                            class="p-2 hover:bg-blue-500 rounded-lg transition-colors"><i data-lucide="x"
+                                class="w-4 h-4"></i></button>
+                    </div>
+
+                    <!-- RESULTS GRID -->
+                    <div id="results-container"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-[50vh] overflow-y-auto custom-scroll pr-2 pt-4">
+                    </div>
+
+                    <div class="text-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <button onclick="resetApp()"
+                            class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Start Over
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <p class="text-center text-sm text-slate-400 dark:text-slate-600 mt-6">
+                Made with <i data-lucide="heart" class="w-3 h-3 inline text-blue-500"></i> for Nigerian students
+            </p>
+        </div>
+    </div>
+
+    <!-- AI CHAT ASSISTANT -->
+    <button onclick="toggleChat()" id="chat-toggle"
+        class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center text-white hover:scale-110 transition-transform">
+        <i data-lucide="message-circle" class="w-6 h-6"></i>
+    </button>
+
+    <div id="chat-panel"
+        class="hidden fixed bottom-24 right-6 z-50 w-80 max-h-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white">Career Compass</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">National Edition</p>
+                    <p class="font-bold">Career Assistant</p>
+                    <p class="text-xs opacity-80">Ask me about courses!</p>
                 </div>
             </div>
-            <div class="hidden sm:flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full border border-green-200 dark:border-green-800">
-                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span class="text-xs text-green-700 dark:text-green-400 font-bold">Online</span>
+        </div>
+        <div id="chat-messages" class="p-4 h-48 overflow-y-auto custom-scroll space-y-3">
+            <div
+                class="bg-slate-100 dark:bg-slate-700 p-3 rounded-xl rounded-tl-none text-sm text-slate-700 dark:text-slate-300">
+                Hi! I'm your Career Assistant. Ask me questions like:
+                <ul class="mt-2 text-xs space-y-1 text-slate-500 dark:text-slate-400">
+                    <li>• "What is Computer Science about?"</li>
+                    <li>• "Which course has the lowest cutoff?"</li>
+                    <li>• "Best courses for creative people?"</li>
+                </ul>
             </div>
         </div>
-
-        <!-- PROGRESS BAR -->
-        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1">
-            <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full w-0 transition-all duration-700 ease-in-out"></div>
-        </div>
-
-        <!-- CONTENT AREA -->
-        <div class="flex-1 p-6 md:p-10 relative overflow-y-auto custom-scroll" id="main-content">
-            
-            <!-- STEP 0: HERO -->
-            <div id="step-0" class="step-section flex flex-col items-center text-center justify-center h-full space-y-8 animate-fade-in">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full"></div>
-                    <div class="w-32 h-32 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center relative rotate-3 hover:rotate-0 transition-transform duration-500">
-                        <i data-lucide="map" class="text-blue-600 dark:text-blue-400 w-16 h-16"></i>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 tracking-tight">
-                        Design Your Future.
-                    </h2>
-                    <p class="text-lg text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
-                        The smartest admission engine for Nigerian students. We analyze your <span class="font-bold text-blue-600 dark:text-blue-400">WAEC</span>, <span class="font-bold text-blue-600 dark:text-blue-400">JAMB</span>, and State of Origin to find your perfect university or polytechnic match.
-                    </p>
-                </div>
-
-                <button onclick="nextStep(1)" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-slate-900 dark:bg-blue-600 rounded-xl hover:bg-slate-800 dark:hover:bg-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                    Begin Analysis
-                    <i data-lucide="arrow-right" class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+        <div class="p-3 border-t border-slate-200 dark:border-slate-700">
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Type a message..."
+                    class="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-xl text-sm outline-none text-slate-700 dark:text-slate-300"
+                    onkeypress="if(event.key==='Enter')sendChatMessage()">
+                <button onclick="sendChatMessage()"
+                    class="px-3 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors">
+                    <i data-lucide="send" class="w-4 h-4"></i>
                 </button>
             </div>
-
-            <!-- STEP 1: DATA ENTRY -->
-            <div id="step-1" class="step-section hidden animate-slide-up">
-                <h3 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Profile & Academics</h3>
-                <p class="text-slate-500 dark:text-slate-400 mb-8">We use this data to calculate your catchment advantages.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">JAMB Score (0-400)</label>
-                        <input type="number" id="jamb-input" placeholder="e.g. 265" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono font-bold text-lg text-blue-600 dark:text-blue-400 transition-all" onchange="updateData('jamb', this.value)">
-                    </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">State of Origin</label>
-                        <select id="state-input" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 dark:text-slate-200 transition-all cursor-pointer" onchange="updateData('state', this.value)">
-                            <option value="">Select State...</option>
-                            <option value="Lagos">Lagos</option><option value="Ogun">Ogun</option><option value="Oyo">Oyo</option><option value="Osun">Osun</option>
-                            <option value="Ekiti">Ekiti</option><option value="Ondo">Ondo</option><option value="Edo">Edo</option><option value="Delta">Delta</option>
-                            <option value="Rivers">Rivers</option><option value="Kano">Kano</option><option value="Kaduna">Kaduna</option><option value="Enugu">Enugu</option>
-                            <option value="Abuja">Abuja</option><option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="subjects-grid"></div>
-            </div>
-
-            <!-- STEP 2: INTERESTS -->
-            <div id="step-2" class="step-section hidden animate-slide-up">
-                <h3 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white">What drives you?</h3>
-                <p class="text-slate-500 dark:text-slate-400 mb-8">Select at least 3 areas that genuinely interest you.</p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="interests-grid"></div>
-            </div>
-
-            <!-- STEP 3: RESULTS -->
-            <div id="step-results" class="step-section hidden animate-fade-in pb-24">
-                <div class="text-center mb-10">
-                    <div class="inline-flex items-center justify-center p-3 bg-green-100 dark:bg-green-900/50 rounded-full mb-4">
-                        <i data-lucide="check-circle-2" class="w-8 h-8 text-green-600 dark:text-green-400"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white">Analysis Complete</h3>
-                    <p class="text-slate-500 dark:text-slate-400 mt-2">We found the best paths for your future.</p>
-                </div>
-                
-                <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-
-                <div class="mt-12 text-center hidden animate-fade-in" id="restart-btn-container">
-                    <button onclick="resetApp()" class="inline-flex items-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 font-medium transition-colors">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i> Start New Analysis
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER NAV -->
-        <div id="nav-footer" class="p-6 border-t border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex justify-between items-center hidden z-10 transition-colors">
-            <button onclick="prevStep()" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white font-medium flex items-center gap-2 px-4 py-2 transition-colors">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
-            </button>
-            <button id="next-btn" onclick="nextStep()" class="bg-slate-900 dark:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg transition-all">
-                Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </button>
         </div>
     </div>
 
     <script>
-        // CONFIG
-        const API_URL = '/recommend'; 
         const SUBJECTS = [
-            {id:'math',label:'Mathematics'},{id:'eng',label:'English'},{id:'phys',label:'Physics'},{id:'chem',label:'Chemistry'},
-            {id:'bio',label:'Biology'},{id:'lit',label:'Literature'},{id:'govt',label:'Government'},{id:'econ',label:'Economics'},{id:'comp',label:'Computer Studies'}
+            { id: 'math', label: 'Mathematics' }, { id: 'eng', label: 'English' }, { id: 'phys', label: 'Physics' }, { id: 'chem', label: 'Chemistry' },
+            { id: 'bio', label: 'Biology' }, { id: 'lit', label: 'Literature' }, { id: 'govt', label: 'Government' }, { id: 'econ', label: 'Economics' },
+            { id: 'comp', label: 'Computer' }, { id: 'agric', label: 'Agric Science' }, { id: 'comm', label: 'Commerce' }, { id: 'geo', label: 'Geography' }
         ];
         const INTERESTS = [
-            {id:'code',label:'Coding',icon:'code'},{id:'build',label:'Building',icon:'hammer'},{id:'care',label:'Healthcare',icon:'heart-pulse'},
-            {id:'law',label:'Debating',icon:'scale'},{id:'money',label:'Finance',icon:'banknote'},{id:'sci',label:'Research',icon:'microscope'},
-            {id:'art',label:'Design',icon:'palette'},{id:'write',label:'Writing',icon:'book-open'}
+            { id: 'code', label: 'Technology', icon: 'laptop' }, { id: 'build', label: 'Engineering', icon: 'settings' },
+            { id: 'care', label: 'Healthcare', icon: 'heart-pulse' }, { id: 'law', label: 'Law & Policy', icon: 'scale' },
+            { id: 'money', label: 'Business', icon: 'trending-up' }, { id: 'sci', label: 'Research', icon: 'flask-conical' },
+            { id: 'art', label: 'Creative Arts', icon: 'palette' }, { id: 'write', label: 'Writing', icon: 'pen-line' },
+            { id: 'teach', label: 'Education', icon: 'graduation-cap' }, { id: 'agric', label: 'Agriculture', icon: 'sprout' },
+            { id: 'media', label: 'Media', icon: 'video' }, { id: 'public', label: 'Public Service', icon: 'users' }
         ];
+        const CATEGORIES = ['All', 'Engineering', 'Health', 'Sciences', 'Business', 'Arts', 'Social Sciences', 'Agriculture', 'Education'];
 
         let currentStep = 0;
-        let userData = { jamb: 0, state: '', grades: {}, interests: [] };
+        let userData = { jamb: 0, grades: {}, interests: [], institutionType: 'all', maxTuition: 0, duration: 'any' };
+        let allResults = [];
+        let activeCategory = 'All';
+        let bookmarkedCourses = JSON.parse(localStorage.getItem('bookmarkedCourses') || '[]');
 
-        // INIT
-        document.addEventListener('DOMContentLoaded', () => { 
-            lucide.createIcons(); 
-            renderSubjects(); 
-            renderInterests(); 
-            // Check system dark mode pref
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderSubjects();
+            renderInterests();
+            renderFilters();
+            if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
         });
 
-        // THEMING
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+
+        function toggleFilters() {
+            const panel = document.getElementById('filters-panel');
+            const chevron = document.getElementById('filter-chevron');
+            const text = document.getElementById('filter-toggle-text');
+            panel.classList.toggle('hidden');
+            chevron.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+            text.textContent = panel.classList.contains('hidden') ? 'Show advanced filters' : 'Hide advanced filters';
         }
 
-        // RENDERERS
         function renderSubjects() {
-            document.getElementById('subjects-grid').innerHTML = SUBJECTS.map(sub => `
-                <div class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/50 dark:bg-slate-800/50 hover:border-blue-400 dark:hover:border-blue-500 transition-colors group">
-                    <label class="font-semibold text-slate-700 dark:text-slate-200 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${sub.label}</label>
-                    <select onchange="userData.grades['${sub.id}'] = parseInt(this.value)" class="ml-4 p-2 pl-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-36 cursor-pointer">
-                        <option value="0">Grade...</option><option value="5">A1 (Exc)</option><option value="4">B2/B3 (VG)</option>
-                        <option value="3">C4-C6 (Cred)</option><option value="2">D7 (Pass)</option><option value="1">E8 (Weak)</option><option value="0">F9 (Fail)</option>
+            document.getElementById('subjects-grid').innerHTML = SUBJECTS.map(s => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">${s.label}</span>
+                    <select onchange="userData.grades['${s.id}']=parseInt(this.value)" class="text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer">
+                        <option value="0">-</option><option value="5">A1</option><option value="4">B2-B3</option>
+                        <option value="3">C4-C6</option><option value="2">D7</option><option value="1">E8</option>
                     </select>
                 </div>`).join('');
         }
 
         function renderInterests() {
-            document.getElementById('interests-grid').innerHTML = INTERESTS.map(int => `
-                <button id="btn-int-${int.id}" onclick="toggleInterest('${int.id}')" class="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:border-blue-200 dark:hover:border-slate-600 hover:shadow-md transition-all gap-3 relative group">
-                    <i data-lucide="${int.icon}" class="w-8 h-8 mb-1 group-hover:scale-110 transition-transform duration-300"></i>
-                    <span class="text-xs font-bold uppercase tracking-wide group-hover:text-slate-800 dark:group-hover:text-white transition-colors">${int.label}</span>
-                    <div id="check-${int.id}" class="hidden absolute top-3 right-3 text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-slate-900 rounded-full p-0.5"><i data-lucide="check-circle-2" class="w-5 h-5 fill-current"></i></div>
+            document.getElementById('interests-grid').innerHTML = INTERESTS.map(i => `
+                <button id="int-${i.id}" onclick="toggleInterest('${i.id}')" class="interest-btn flex items-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-left hover:border-blue-300 dark:hover:border-blue-600">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                        <i data-lucide="${i.icon}" class="w-5 h-5 text-slate-500 dark:text-slate-400"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">${i.label}</span>
                 </button>`).join('');
             lucide.createIcons();
         }
 
-        function renderSkeleton() {
-            document.getElementById('results-container').innerHTML = Array(4).fill(0).map(() => `
-                <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm relative overflow-hidden">
-                    <div class="animate-pulse">
-                        <div class="flex justify-between items-center mb-6">
-                            <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
-                            <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20"></div>
-                        </div>
-                        <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
-                        <div class="space-y-2 mb-6">
-                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
-                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
-                        </div>
-                        <div class="h-12 bg-slate-100 dark:bg-slate-700 rounded-xl"></div>
-                    </div>
-                </div>`).join('');
+        function renderFilters() {
+            document.getElementById('category-filters').innerHTML = CATEGORIES.map(c => `
+                <button onclick="filterCategory('${c}')" class="category-pill px-4 py-2 text-sm font-semibold rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-400 ${c === 'All' ? 'active' : ''}">${c}</button>`).join('');
         }
 
-        // --- INTERACTIVITY ---
         function toggleInterest(id) {
-            const btn = document.getElementById(`btn-int-${id}`); const check = document.getElementById(`check-${id}`);
-            if (userData.interests.includes(id)) { 
-                userData.interests = userData.interests.filter(i => i !== id); 
-                btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-slate-700', 'text-blue-700', 'dark:text-blue-300');
-                btn.classList.add('border-slate-100', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
-                check.classList.add('hidden'); 
-            } else { 
-                userData.interests.push(id); 
-                btn.classList.remove('border-slate-100', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
-                btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-slate-700', 'text-blue-700', 'dark:text-blue-300'); 
-                check.classList.remove('hidden'); 
+            const btn = document.getElementById(`int-${id}`);
+            if (userData.interests.includes(id)) {
+                userData.interests = userData.interests.filter(i => i !== id);
+                btn.classList.remove('selected');
+            } else {
+                userData.interests.push(id);
+                btn.classList.add('selected');
             }
-            validateStep(); lucide.createIcons();
-        }
-
-        function validateStep() {
-            const nextBtn = document.getElementById('next-btn');
-            if (currentStep === 2) { 
-                nextBtn.disabled = userData.interests.length < 3; 
-                nextBtn.innerHTML = userData.interests.length < 3 ? `Select ${3 - userData.interests.length} more` : `Run Analysis <i data-lucide="sparkles" class="w-4 h-4 ml-2"></i>`; 
-            }
-        }
-
-        function updateData(key, val) { if(key === 'jamb') userData.jamb = parseInt(val)||0; if(key === 'state') userData.state = val; }
-
-        async function nextStep(target) {
-            if (target) currentStep = target; else { if (currentStep === 1 && userData.jamb < 1) return alert("Please enter your JAMB score to continue."); currentStep++; }
-            document.querySelectorAll('.step-section').forEach(el => el.classList.add('hidden'));
-            
-            if (currentStep === 3) {
-                document.getElementById('nav-footer').classList.add('hidden'); 
-                document.getElementById('step-results').classList.remove('hidden'); 
-                renderSkeleton();
-                try {
-                    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userData) });
-                    const results = await response.json(); renderResults(results); document.getElementById('restart-btn-container').classList.remove('hidden');
-                } catch (e) { 
-                    document.getElementById('results-container').innerHTML = `<div class="col-span-2 text-center text-red-500 p-8 glass rounded-xl">Connection Failed. Make sure Docker is running.</div>`; 
-                }
-            } else { 
-                document.getElementById(`step-${currentStep}`).classList.remove('hidden'); 
-                document.getElementById('nav-footer').classList.remove('hidden'); 
-                document.getElementById('nav-footer').classList.add('flex'); 
-            }
-            document.getElementById('progress-bar').style.width = `${(currentStep/3)*100}%`; validateStep(); lucide.createIcons();
-        }
-        function prevStep() { if (currentStep > 0) currentStep--; nextStep(currentStep); }
-
-        // RESULTS & MODALS
-        function renderResults(results) {
-            const container = document.getElementById('results-container');
-            if (results.length === 0) { 
-                container.innerHTML = `<div class="col-span-2 text-center text-slate-500 dark:text-slate-400 p-12 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
-                    <i data-lucide="frown" class="w-12 h-12 mx-auto mb-4 text-slate-300 dark:text-slate-600"></i>
-                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">No Matches Found</h3>
-                    <p class="text-sm mt-2">Try adjusting your JAMB score or ensuring you meet compulsory subjects (e.g., Biology for Med).</p>
-                </div>`; 
-                lucide.createIcons(); return; 
-            }
-
-            container.innerHTML = results.map(r => {
-                const uniData = JSON.stringify(r.universities).replace(/"/g, '&quot;');
-                const careerPath = r.career_path ? JSON.stringify(r.career_path).replace(/"/g, '&quot;') : '[]';
-                
-                return `
-                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 to-indigo-600"></div>
-                    
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-blue-100 dark:border-blue-800">
-                            ${r.category}
-                        </span>
-                        <div class="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg border border-green-100 dark:border-green-800">
-                            <i data-lucide="trending-up" class="w-4 h-4 text-green-600 dark:text-green-400"></i> 
-                            <span class="text-green-700 dark:text-green-400 font-bold text-sm">${r.score}% Match</span>
-                        </div>
-                    </div>
-                    
-                    <h4 class="text-2xl font-bold text-slate-800 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${r.title}</h4>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2">${r.description}</p>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="openModal('${r.title}', ${uniData}, ${careerPath})" class="col-span-2 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold hover:bg-blue-600 dark:hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10">
-                            View Institutions <i data-lucide="eye" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-            `}).join('');
+            const nextBtn = document.getElementById('step2-next');
+            nextBtn.disabled = userData.interests.length < 3;
+            nextBtn.innerHTML = userData.interests.length < 3
+                ? `Select ${3 - userData.interests.length} more`
+                : `<i data-lucide="sparkles" class="w-4 h-4"></i> Find My Courses`;
             lucide.createIcons();
         }
 
-        function openModal(title, universities, careers) {
-            const backdrop = document.getElementById('modal-backdrop');
-            const content = document.getElementById('modal-content');
-            
-            // Career Timeline HTML
-            const careerHTML = careers.length ? `
-                <div class="mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Career Trajectory</p>
-                    <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scroll">
-                        ${careers.map((c, i) => `
-                            <div class="flex items-center shrink-0">
-                                <div class="px-3 py-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm whitespace-nowrap">${c}</div>
-                                ${i < careers.length - 1 ? `<div class="h-0.5 w-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>` : ''}
+        function updateData(key, val) {
+            if (key === 'jamb') userData.jamb = parseInt(val) || 0;
+            if (key === 'institutionType') userData.institutionType = val;
+            if (key === 'maxTuition') userData.maxTuition = parseInt(val) || 0;
+            if (key === 'duration') userData.duration = val;
+        }
+
+        function startJourney() {
+            currentStep = 1;
+            document.getElementById('step-0').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('progress-container').classList.remove('hidden');
+            updateProgress();
+        }
+
+        function nextStep() {
+            if (currentStep === 1 && userData.jamb < 1) return alert('Please enter your JAMB score');
+            currentStep++;
+            document.querySelectorAll('.step-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+            updateProgress();
+        }
+
+        function goBack() {
+            if (currentStep > 0) {
+                currentStep--;
+                document.querySelectorAll('.step-section').forEach(s => s.classList.add('hidden'));
+                document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+                if (currentStep === 0) document.getElementById('progress-container').classList.add('hidden');
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`prog-${i}`);
+                const line = document.getElementById(`prog-line-${i}`);
+                step.classList.remove('completed', 'active');
+                if (i < currentStep) { step.classList.add('completed'); step.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-white"></i>'; }
+                else if (i === currentStep) { step.classList.add('active'); step.innerHTML = i; step.classList.add('border-blue-500', 'text-blue-500'); }
+                else { step.innerHTML = i; step.classList.remove('border-blue-500', 'text-blue-500'); }
+                if (line) line.style.width = i < currentStep ? '100%' : '0%';
+            }
+            lucide.createIcons();
+        }
+
+        async function getResults() {
+            currentStep = 3;
+            document.querySelectorAll('.step-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step-3').classList.remove('hidden');
+            updateProgress();
+
+            document.getElementById('results-container').innerHTML = `
+                <div class="col-span-2 py-16 text-center">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30 mb-6 animate-spin" style="animation-duration: 2s;">
+                        <i data-lucide="compass" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <p class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">Finding your perfect courses...</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Analyzing your grades and interests</p>
+                </div>`;
+            lucide.createIcons();
+
+            try {
+                const res = await fetch('/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userData) });
+                allResults = await res.json();
+                renderResults(allResults);
+            } catch (e) { document.getElementById('results-container').innerHTML = `<div class="col-span-2 text-center p-8 text-red-500">Connection failed. Is the server running?</div>`; }
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            const filtered = cat === 'All' ? allResults : allResults.filter(r => r.category === cat);
+            renderResults(filtered);
+        }
+
+        function searchCourses(q) {
+            let filtered = allResults.filter(r => r.title.toLowerCase().includes(q.toLowerCase()));
+            if (activeCategory !== 'All') filtered = filtered.filter(r => r.category === activeCategory);
+            renderResults(filtered);
+        }
+
+        function renderResults(results) {
+            const container = document.getElementById('results-container');
+            if (!results.length) {
+                container.innerHTML = `<div class="col-span-2 text-center p-12"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600"></i><p class="text-slate-500 dark:text-slate-400 font-medium">No matching courses found</p><p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Try adjusting your filters</p></div>`;
+                lucide.createIcons(); return;
+            }
+            const categoryColors = { Engineering: '#6366f1', Health: '#10b981', Sciences: '#8b5cf6', Business: '#f59e0b', Arts: '#ec4899', 'Social Sciences': '#06b6d4', Agriculture: '#22c55e', Education: '#f97316' };
+            container.innerHTML = results.map((r, i) => {
+                const isBookmarked = bookmarkedCourses.includes(r.id);
+                const catColor = categoryColors[r.category] || '#6366f1';
+                const isSelected = selectedForCompare.includes(r.id);
+                return `
+                <div class="result-card card-hover bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 relative ${i === 0 ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900' : ''} ${isSelected ? 'ring-2 ring-blue-400' : ''}" style="animation-delay: ${i * 0.08}s">
+                    <div class="absolute top-3 right-3 flex gap-2">
+                        ${compareMode ? `<button onclick="toggleCompare('${r.id}')" class="p-2 rounded-lg ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-400'} hover:opacity-80">
+                            <i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-4 h-4"></i>
+                        </button>` : ''}
+                        <button onclick="toggleBookmark('${r.id}')" class="bookmark-btn p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 ${isBookmarked ? 'active' : 'text-slate-400'}">
+                            <i data-lucide="heart" class="w-4 h-4 ${isBookmarked ? 'fill-current' : ''}"></i>
+                        </button>
+                    </div>
+                    ${i === 0 ? '<div class="absolute -top-2 -left-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-bold uppercase rounded-full shadow-lg">Top Pick</div>' : ''}
+                    <span class="inline-block px-2.5 py-1 text-xs font-bold rounded-lg mb-3" style="background: ${catColor}15; color: ${catColor}">${r.category}</span>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 pr-16">${r.title}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">${r.description}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center score-ring" style="--score: ${Math.min(r.score, 100)}%">
+                                <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center">
+                                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">${r.score}%</span>
+                                </div>
                             </div>
-                        `).join('')}
+                            <span class="text-xs text-slate-500 dark:text-slate-400">${r.universities.length} unis</span>
+                        </div>
+                        <button onclick='openModal(${JSON.stringify(r).replace(/'/g, "\\'")})' class="glow-btn px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-xl hover:scale-105 transition-transform">View</button>
                     </div>
-                </div>` : '';
+                </div>`}).join('');
+            lucide.createIcons();
+        }
 
-            // Universities HTML
-            const uniHTML = universities.map(u => `
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 mb-3 last:mb-0 hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
-                    <div class="mb-2 sm:mb-0">
-                        <p class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                            ${u.name}
-                        </p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                            <i data-lucide="clock" class="w-3 h-3"></i> ${u.duration} 
-                            <span class="mx-1">•</span>
-                            <span class="text-blue-600 dark:text-blue-400 font-medium">Cut-off: ${u.cutoff}</span>
-                        </p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-slate-900 dark:text-white">${u.tuition}</p>
-                        <p class="text-[10px] text-slate-400 uppercase">Per Session</p>
-                    </div>
-                </div>
-            `).join('');
+        function toggleBookmark(courseId) {
+            if (bookmarkedCourses.includes(courseId)) {
+                bookmarkedCourses = bookmarkedCourses.filter(id => id !== courseId);
+            } else {
+                bookmarkedCourses.push(courseId);
+            }
+            localStorage.setItem('bookmarkedCourses', JSON.stringify(bookmarkedCourses));
+            renderResults(activeCategory === 'All' ? allResults : allResults.filter(r => r.category === activeCategory));
+        }
 
+        function openModal(r) {
+            const modal = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
             content.innerHTML = `
-                <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">${title}</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Available Options</p>
-                    </div>
-                    <button onclick="closeModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 dark:text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-start">
+                    <div><span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">${r.category}</span><h3 class="text-xl font-bold text-slate-900 dark:text-white">${r.title}</h3></div>
+                    <button onclick="closeModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-slate-500"></i></button>
                 </div>
-                <div class="p-6 max-h-[60vh] overflow-y-auto custom-scroll bg-white dark:bg-slate-900">
-                    ${careerHTML}
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Recommended Institutions</p>
-                    ${uniHTML}
-                </div>
-            `;
-            
-            // Show
-            backdrop.classList.remove('hidden'); backdrop.classList.add('flex');
-            content.classList.remove('hidden', 'scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
+                <div class="p-6 max-h-[60vh] overflow-y-auto custom-scroll">
+                    ${r.career_path?.length ? `<div class="mb-6"><p class="text-xs font-bold text-slate-400 uppercase mb-2">Career Path</p><div class="flex flex-wrap gap-2">${r.career_path.map(c => `<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-full">${c}</span>`).join('<i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 self-center"></i>')}</div></div>` : ''}
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3">Available Institutions (${r.universities.length})</p>
+                    <div class="space-y-3">${r.universities.map(u => `
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <p class="font-semibold text-slate-900 dark:text-white">${u.name}</p>
+                            <div class="flex flex-wrap gap-3 mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${u.duration}</span>
+                                <span><i data-lucide="target" class="w-3 h-3 inline"></i> Cut-off: ${u.cutoff}</span>
+                                <span><i data-lucide="wallet" class="w-3 h-3 inline"></i> ${u.tuition}</span>
+                            </div>
+                        </div>`).join('')}</div>
+                </div>`;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100');
             lucide.createIcons();
         }
 
         function closeModal() {
-            const backdrop = document.getElementById('modal-backdrop');
+            const modal = document.getElementById('modal-backdrop');
             const content = document.getElementById('modal-content');
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                backdrop.classList.add('hidden');
-                backdrop.classList.remove('flex');
-            }, 200);
+            content.classList.add('scale-95', 'opacity-0'); content.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
         }
+
         function resetApp() { location.reload(); }
+
+        // ========== NEW FEATURES ==========
+
+        // PDF Export
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFillColor(59, 130, 246);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.text('Career Compass', 20, 25);
+            doc.setFontSize(10);
+            doc.text('Your Personalized Course Recommendations', 20, 33);
+
+            // User Info
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.text(`JAMB Score: ${userData.jamb}`, 20, 55);
+            doc.text(`Interests: ${userData.interests.join(', ')}`, 20, 63);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 71);
+
+            // Courses
+            doc.setFontSize(14);
+            doc.text('Recommended Courses:', 20, 85);
+
+            let y = 95;
+            allResults.slice(0, 8).forEach((course, i) => {
+                if (y > 270) { doc.addPage(); y = 20; }
+                doc.setFontSize(11);
+                doc.setTextColor(59, 130, 246);
+                doc.text(`${i + 1}. ${course.title}`, 20, y);
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(9);
+                doc.text(`Category: ${course.category} | Match: ${course.score}%`, 25, y + 6);
+                doc.text(`Universities: ${course.universities.slice(0, 3).map(u => u.name).join(', ')}`, 25, y + 12);
+                y += 22;
+            });
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generated by Career Compass - careercompass.ng', 20, 290);
+
+            doc.save('career-compass-recommendations.pdf');
+        }
+
+        // Compare Mode
+        let compareMode = false;
+        let selectedForCompare = [];
+
+        function toggleCompareMode() {
+            compareMode = !compareMode;
+            const btn = document.getElementById('compare-mode-btn');
+            if (compareMode) {
+                btn.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-600');
+                btn.classList.remove('bg-white', 'dark:bg-slate-800');
+            } else {
+                btn.classList.remove('bg-blue-100', 'border-blue-400', 'text-blue-600');
+                btn.classList.add('bg-white', 'dark:bg-slate-800');
+                selectedForCompare = [];
+                updateCompareBar();
+            }
+            renderResults(activeCategory === 'All' ? allResults : allResults.filter(r => r.category === activeCategory));
+        }
+
+        function toggleCompare(courseId) {
+            if (selectedForCompare.includes(courseId)) {
+                selectedForCompare = selectedForCompare.filter(id => id !== courseId);
+            } else if (selectedForCompare.length < 3) {
+                selectedForCompare.push(courseId);
+            }
+            updateCompareBar();
+            renderResults(activeCategory === 'All' ? allResults : allResults.filter(r => r.category === activeCategory));
+        }
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compare-bar');
+            const count = document.getElementById('compare-count');
+            if (selectedForCompare.length > 0) {
+                bar.classList.remove('hidden');
+                bar.classList.add('flex');
+                count.textContent = `${selectedForCompare.length} course${selectedForCompare.length > 1 ? 's' : ''} selected`;
+            } else {
+                bar.classList.add('hidden');
+                bar.classList.remove('flex');
+            }
+            lucide.createIcons();
+        }
+
+        function clearComparison() {
+            selectedForCompare = [];
+            updateCompareBar();
+            renderResults(activeCategory === 'All' ? allResults : allResults.filter(r => r.category === activeCategory));
+        }
+
+        function showComparison() {
+            if (selectedForCompare.length < 2) { alert('Select at least 2 courses to compare'); return; }
+            const courses = selectedForCompare.map(id => allResults.find(r => r.id === id));
+            const modal = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Course Comparison</h3>
+                    <button onclick="closeModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-slate-500"></i></button>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-700">
+                                <th class="text-left py-3 px-2 text-slate-500 font-semibold">Feature</th>
+                                ${courses.map(c => `<th class="text-left py-3 px-2 font-bold text-slate-900 dark:text-white">${c.title}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-3 px-2 text-slate-500">Category</td>
+                                ${courses.map(c => `<td class="py-3 px-2 text-slate-700 dark:text-slate-300">${c.category}</td>`).join('')}
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-3 px-2 text-slate-500">Match Score</td>
+                                ${courses.map(c => `<td class="py-3 px-2 font-bold text-green-600">${c.score}%</td>`).join('')}
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-3 px-2 text-slate-500">Universities</td>
+                                ${courses.map(c => `<td class="py-3 px-2 text-slate-700 dark:text-slate-300">${c.universities.length}</td>`).join('')}
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-3 px-2 text-slate-500">Avg. Cut-off</td>
+                                ${courses.map(c => `<td class="py-3 px-2 text-slate-700 dark:text-slate-300">${Math.round(c.universities.reduce((a, u) => a + u.cutoff, 0) / c.universities.length)}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-2 text-slate-500">Duration</td>
+                                ${courses.map(c => `<td class="py-3 px-2 text-slate-700 dark:text-slate-300">${c.universities[0]?.duration || 'N/A'}</td>`).join('')}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100');
+            lucide.createIcons();
+        }
+
+        // Voice Search
+        let recognition;
+        function toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Voice input is not supported in your browser. Try Chrome or Edge.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-NG';
+            recognition.interimResults = false;
+
+            const btn = document.getElementById('voice-btn');
+            btn.classList.add('bg-red-100', 'border-red-400', 'text-red-600');
+            btn.innerHTML = '<i data-lucide="mic" class="w-4 h-4 animate-pulse"></i> Listening...';
+            lucide.createIcons();
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                document.getElementById('course-search').value = transcript;
+                searchCourses(transcript);
+                resetVoiceBtn();
+            };
+
+            recognition.onerror = () => resetVoiceBtn();
+            recognition.onend = () => resetVoiceBtn();
+
+            recognition.start();
+        }
+
+        function resetVoiceBtn() {
+            const btn = document.getElementById('voice-btn');
+            btn.classList.remove('bg-red-100', 'border-red-400', 'text-red-600');
+            btn.classList.add('bg-white', 'dark:bg-slate-800');
+            btn.innerHTML = '<i data-lucide="mic" class="w-4 h-4"></i> Voice Search';
+            lucide.createIcons();
+        }
+
+        // Animated Stats Counter
+        function animateStats() {
+            const counters = document.querySelectorAll('[data-count]');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target + '+';
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 16);
+            });
+        }
+
+        // Testimonial Carousel
+        const testimonials = [
+            { text: "Career Compass helped me discover Computer Science was my calling. Now studying at UNILAG!", author: "Adaeze O., Lagos" },
+            { text: "I was confused about my options until this app showed me Medicine aligned with my interests.", author: "Chukwuemeka I., Enugu" },
+            { text: "The course comparison feature helped me choose between Engineering programs. Highly recommend!", author: "Fatima A., Kano" },
+            { text: "Finally found a course that matches both my JAMB score and passions. Thank you Career Compass!", author: "Oluwaseun B., Oyo" }
+        ];
+        let currentTestimonial = 0;
+
+        function rotateTestimonials() {
+            const container = document.getElementById('testimonial-carousel');
+            if (!container) return;
+
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            const t = testimonials[currentTestimonial];
+
+            container.innerHTML = `
+                <div class="testimonial-slide transition-opacity duration-500">
+                    <p class="text-slate-600 dark:text-slate-400 italic mb-3">"${t.text}"</p>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">— ${t.author}</p>
+                </div>`;
+        }
+
+        // Initialize on page load
+        setTimeout(animateStats, 500);
+        setInterval(rotateTestimonials, 5000);
+
+        // AI Chat Assistant
+        function toggleChat() {
+            const panel = document.getElementById('chat-panel');
+            panel.classList.toggle('hidden');
+            lucide.createIcons();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesDiv = document.getElementById('chat-messages');
+
+            // Add user message
+            messagesDiv.innerHTML += `<div class="bg-blue-500 text-white p-3 rounded-xl rounded-tr-none text-sm ml-8">${message}</div>`;
+            input.value = '';
+
+            // Generate response
+            setTimeout(() => {
+                const response = getChatResponse(message.toLowerCase());
+                messagesDiv.innerHTML += `<div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-xl rounded-tl-none text-sm text-slate-700 dark:text-slate-300">${response}</div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function getChatResponse(query) {
+            // Course info responses
+            if (query.includes('computer science') || query.includes('cs')) {
+                return "Computer Science is about building software, AI systems, and digital solutions. Great for tech enthusiasts! Typical cutoff: 260+";
+            }
+            if (query.includes('medicine') || query.includes('doctor')) {
+                return "Medicine prepares you to become a doctor. It's 6 years and requires strong Biology/Chemistry grades. Cutoff is typically 280+.";
+            }
+            if (query.includes('engineering')) {
+                return "Engineering courses (Mechanical, Electrical, Civil) focus on designing and building systems. Strong Math & Physics needed. Cutoff: 240-270.";
+            }
+            if (query.includes('law')) {
+                return "Law prepares you for legal practice. Requires good English and Government. Duration: 5 years. Cutoff: 260+";
+            }
+
+            // General questions
+            if (query.includes('lowest cutoff') || query.includes('easy')) {
+                return "Courses with lower cutoffs include Agriculture, Education, and some Arts programs (180-220). But choose based on your passion, not just cutoff!";
+            }
+            if (query.includes('creative') || query.includes('art')) {
+                return "For creative people, consider: Fine Arts, Mass Communication, Theatre Arts, Architecture, or Graphic Design!";
+            }
+            if (query.includes('business') || query.includes('money')) {
+                return "Business-oriented courses: Accounting, Business Admin, Economics, Banking & Finance. Great for entrepreneurship!";
+            }
+            if (query.includes('jamb') || query.includes('score')) {
+                return "JAMB scores matter! 250+ opens most doors. Below 200 limits options. Use the filters above to see courses matching your score.";
+            }
+            if (query.includes('hi') || query.includes('hello')) {
+                return "Hello! I'm here to help you find your perfect course. What would you like to know?";
+            }
+            if (query.includes('thank')) {
+                return "You're welcome! Good luck with your course selection. Remember to use the comparison feature to make the best choice!";
+            }
+
+            return "I can help with course info, cutoffs, and career paths. Try asking about specific courses like 'What is Computer Science about?' or 'Best courses for creative people?'";
+        }
     </script>
 </body>
+
 </html>
