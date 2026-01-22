@@ -269,6 +269,167 @@
         .dark .score-ring {
             background: conic-gradient(#34d399 var(--score), #374151 var(--score));
         }
+
+        /* ========== RESPONSIVE / MOBILE STYLES ========== */
+
+        /* Hide blobs on mobile for performance */
+        @media (max-width: 768px) {
+            .blob {
+                display: none;
+            }
+
+            /* Smaller padding on mobile */
+            .step-section {
+                padding: 1.5rem !important;
+            }
+
+            /* Stack action buttons */
+            #step-3 .flex-wrap {
+                gap: 0.5rem;
+            }
+
+            /* Full-width buttons on mobile */
+            #step-3 button {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            /* Chat panel adjustments */
+            #chat-panel {
+                right: 1rem;
+                left: 1rem;
+                width: auto;
+                bottom: 5rem;
+            }
+
+            /* Compare bar mobile */
+            #compare-bar {
+                left: 1rem;
+                right: 1rem;
+                transform: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            /* Smaller stats on mobile */
+            #stats-section div {
+                padding: 0.75rem;
+            }
+
+            #stats-section [data-count] {
+                font-size: 1.5rem;
+            }
+
+            /* Results grid single column */
+            #results-container {
+                grid-template-columns: 1fr !important;
+                max-height: 60vh;
+            }
+
+            /* Interests grid 2 cols on mobile */
+            #interests-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            /* Category filters scroll horizontal */
+            #category-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #category-filters button {
+                flex-shrink: 0;
+            }
+
+            /* Modal full-width on mobile */
+            #modal-content {
+                max-width: 95%;
+                max-height: 90vh;
+            }
+
+            /* Smaller headings */
+            h1 {
+                font-size: 2rem !important;
+            }
+
+            h2 {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .step-section {
+                padding: 1rem !important;
+            }
+
+            /* Stack grade dropdowns */
+            #subjects-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Interests single column on very small */
+            #interests-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Smaller action buttons */
+            .flex-wrap button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.7rem;
+            }
+
+            /* Progress steps smaller */
+            .progress-step {
+                width: 1.75rem;
+                height: 1.75rem;
+                font-size: 0.75rem;
+            }
+
+            /* Chat toggle smaller */
+            #chat-toggle {
+                width: 3rem;
+                height: 3rem;
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        /* Tablet landscape */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #results-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* Touch devices - larger tap targets */
+        @media (hover: none) and (pointer: coarse) {
+
+            button,
+            select,
+            .interest-btn {
+                min-height: 44px;
+            }
+
+            .bookmark-btn,
+            #compare-bar button {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Prevent horizontal overflow */
+        body {
+            overflow-x: hidden;
+        }
     </style>
 </head>
 
@@ -289,21 +450,21 @@
 
     <!-- THEME TOGGLE -->
     <button onclick="toggleTheme()"
-        class="fixed top-5 right-5 z-50 p-3 rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+        class="fixed top-3 right-3 md:top-5 md:right-5 z-50 p-2 md:p-3 rounded-xl md:rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+        <i data-lucide="sun" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block"></i>
+        <i data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5 dark:hidden"></i>
     </button>
 
     <!-- MODAL -->
     <div id="modal-backdrop"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-2 md:p-4">
         <div id="modal-content"
-            class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0">
+            class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0">
         </div>
     </div>
 
     <!-- MAIN CONTAINER -->
-    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 py-8">
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-2 py-4 md:p-4 md:py-8">
         <div class="w-full max-w-3xl">
 
             <!-- PROGRESS INDICATOR -->
